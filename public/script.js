@@ -2,8 +2,6 @@ const socket = io();
 var settings;
 var color = 0;
 
-var timeoutTime = 0;
-
 function setup() {
     createCanvas(0, 0);
 }
@@ -15,12 +13,12 @@ function isTimeout(time) {
 function mouseClicked(e) {
     const cell = getMouseCell();
     if (!cell) return;
-    if (isTimeout(timeoutTime)) return;
+    if (isTimeout(settings.timeoutTime)) return;
 
     socket.emit('place', cell.x, cell.y, color, allowed => {
         if (!allowed) return;
         setPixel(cell.x, cell.y, color);
-        timeoutTime = Date.now();
+        settings.timeoutTime = Date.now();
     });
 }
 
@@ -36,8 +34,8 @@ socket.on('start', (_settings) => {
 
     setInterval(() => {
         // if the player has timeout, display the left timeout time in #timeoutLabel.
-        if (isTimeout(timeoutTime)) {
-            const timeLeft = settings.timeout - (Date.now() - timeoutTime);
+        if (isTimeout(settings.timeoutTime)) {
+            const timeLeft = settings.timeout - (Date.now() - settings.timeoutTime);
             document.getElementById('timeoutLabel').innerText = `Timeout: ${Math.floor(timeLeft / 1000) + 1}s`;
         } else {
             document.getElementById('timeoutLabel').innerText = '';

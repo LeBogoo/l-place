@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const fs = require('fs');
 const express = require('express');
 
 const app = express();
@@ -38,33 +39,44 @@ app.use(express.static('./public'));
 
 app.use(cors({ 'origin': '*' }))
 
-var grid = [];
+var grid = JSON.parse(fs.readFileSync('./grid.json', 'utf8')) || [];
 
 const settings = {
     size: 70,
     colors,
     grid,
-    timeout: 5000,
+    timeout: 20000,
 }
 
-for (let x = 0; x < settings.size; x++) {
-    grid[x] = [];
-    for (let y = 0; y < settings.size; y++) {
-        grid[x][y] = colors.length - 1;
+const timeouts = {};
+
+if (grid.length == 0) {
+    for (let x = 0; x < settings.size; x++) {
+        grid[x] = [];
+        for (let y = 0; y < settings.size; y++) {
+            grid[x][y] = colors.length - 1;
+        }
     }
 }
+
+setInterval(() => {
+    fs.writeFileSync('./grid.json', JSON.stringify(grid));
+}, 10000);
 
 function isTimeout(time) {
     return Date.now() - settings.timeout < time;
 }
 
 io.on('connection', function (socket) {
-    var lastPlace = 0;
+    var ip = socket.handshake.headers['x-forwarded-for'];
+    if (!timeouts[ip]) timeouts[ip] = 0;
 
     socket.on('place', (_x, _y, _color, cb) => {
-        if (isTimeout(lastPlace)) return cb(false);
+        if (isTimeout(timeouts[ip])) return cb(false);
+        console.log(`${ip} placed at ${_x}, ${_y}`);
+
         cb(true);
-        lastPlace = Date.now();
+        timeouts[ip] = Date.now();
 
         const x = parseInt(_x);
         const y = parseInt(_y);
@@ -79,5 +91,5 @@ io.on('connection', function (socket) {
         io.emit('place', x, y, color);
     })
 
-    socket.emit('start', settings)
+    socket.emit('start', { ...settings, timeoutTime: timeouts[ip] })
 });
