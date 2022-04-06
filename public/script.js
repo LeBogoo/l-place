@@ -50,8 +50,14 @@ socket.on('start', (_settings) => {
 
     settings.colors.forEach((_color, i) => {
         const colorButton = document.createElement('button');
-        colorButton.addEventListener('click', () => { color = i; });
-
+        if (i == 0) colorButton.classList.add('active');
+        colorButton.addEventListener('click', () => {
+            color = i;
+            document.querySelectorAll('.color-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            colorButton.classList.add('active');
+        });
         colorButton.classList.add('color-button');
         colorButton.style.backgroundColor = _color;
 
