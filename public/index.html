@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>l/place</title>
+    <style>
+        html {
+            background-color: rgb(163, 163, 163);
+            font-family: sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #colorContainer {
+            position: absolute;
+            bottom: 0.2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
+
+        #timeoutLabel {
+            position: absolute;
+            top: 0.5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
+
+        .color-button {
+            border: 0.2vw solid rgb(43, 43, 43);
+            border-radius: 50%;
+            margin: 0.3vw;
+            width: 2vw;
+            height: 2vw;
+            z-index: 200;
+        }
+
+        canvas {
+            position: absolute;
+            /* width: 80vw; */
+            height: auto;
+            top: 0.5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            /* border: 5px solid black; */
+        }
+    </style>
+</head>
+
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.min.js"></script>
+    <script src="script.js"></script>
+    <div id="colorContainer"></div>
+    <h2 id="timeoutLabel"></h2>
+</body>
+
+</html>
