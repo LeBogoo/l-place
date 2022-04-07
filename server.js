@@ -39,7 +39,10 @@ app.use(express.static('./public'));
 
 app.use(cors({ 'origin': '*' }))
 
-var grid = JSON.parse(fs.readFileSync('./grid.json', 'utf8')) || [];
+
+const saveFile = process.env.SAVEFILE || "grid.json";
+
+var grid = fs.existsSync(saveFile) ? JSON.parse(fs.readFileSync(saveFile, 'utf8')) : [];
 
 const settings = {
     size: 70,
@@ -60,7 +63,7 @@ if (grid.length == 0) {
 }
 
 setInterval(() => {
-    fs.writeFileSync('./grid.json', JSON.stringify(grid));
+    fs.writeFileSync(saveFile, JSON.stringify(grid));
 }, 10000);
 
 function isTimeout(time) {
