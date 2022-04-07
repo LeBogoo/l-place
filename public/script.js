@@ -10,7 +10,7 @@ function isTimeout(time) {
     return Date.now() - settings.timeout < time;
 }
 
-function mouseClicked(e) {
+function mouseClicked() {
     const cell = getMouseCell();
     if (!cell) return;
     if (isTimeout(settings.timeoutTime)) return;
@@ -21,6 +21,38 @@ function mouseClicked(e) {
         settings.timeoutTime = Date.now();
     });
 }
+
+// functions for use in bots. Free to use!
+
+function timeoutEnd() {
+    return new Promise((res, rej) => {
+        const i = setInterval(() => {
+            if (!isTimeout(settings.timeoutTime)) {
+                clearInterval(i);
+                res();
+            }
+        }, 100)
+    })
+}
+
+/**
+ * Places a pixel at the given position if the timeout has expired.
+ * Use await place(x,y,color) instead of normal socket.io calls to be sure that the pixel is placed.
+ * 
+ * @param {Number} x 
+ * @param {Number} y 
+ * @param {Number} _color Number between 0 and length of settings.colors
+ */
+async function place(x, y, _color) {
+    await timeoutEnd();
+    socket.emit('place', x, y, _color, allowed => {
+        if (!allowed) return;
+        setPixel(x, y, _color);
+        settings.timeoutTime = Date.now();
+    });
+}
+
+// End of functions for bot use.
 
 function drawGrid() {
     for (let x = 0; x < settings.grid.length; x++) {
