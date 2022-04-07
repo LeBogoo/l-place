@@ -45,7 +45,7 @@ const settings = {
     size: 70,
     colors,
     grid,
-    timeout: 20000,
+    timeout: 10000,
 }
 
 const timeouts = {};
