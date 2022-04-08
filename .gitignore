@@ -1,3 +1,4 @@
 node_modules/
 .env
 grid*
+banlist.json

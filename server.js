@@ -72,9 +72,21 @@ function isTimeout(time) {
 
 io.on('connection', function (socket) {
     var ip = socket.handshake.headers['x-forwarded-for'];
+    var banList = fs.existsSync('banlist.json') ? JSON.parse(fs.readFileSync('banlist.json', 'utf8')) : [];
+    if (banList.includes(ip)) {
+        socket.disconnect();
+        console.log(`Banned Player (${ip}) was disconnected.`);
+    }
+    else {
+        console.log(`${ip} connected!`)
+    }
+
     if (!timeouts[ip]) timeouts[ip] = 0;
 
     socket.on('place', (_x, _y, _color, cb) => {
+        var banList = fs.existsSync('banlist.json') ? JSON.parse(fs.readFileSync('banlist.json', 'utf8')) : [];
+        if (banList.includes(ip)) socket.disconnect();
+
         if (isTimeout(timeouts[ip])) return cb(false);
         console.log(`${ip} placed at ${_x}, ${_y}`);
 
@@ -93,6 +105,10 @@ io.on('connection', function (socket) {
 
         io.emit('place', x, y, color);
     })
+
+    socket.on('disconnect', () => {
+        console.log(`${ip} disconnected!`);
+    });
 
     socket.emit('start', { ...settings, timeoutTime: timeouts[ip] })
 });
