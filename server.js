@@ -45,10 +45,10 @@ const saveFile = process.env.SAVEFILE || "grid.json";
 var grid = fs.existsSync(saveFile) ? JSON.parse(fs.readFileSync(saveFile, 'utf8')) : [];
 
 const settings = {
-    size: 70,
+    size: 500,
     colors,
     grid,
-    timeout: 10000,
+    timeout: 1000,
 }
 
 const timeouts = {};
@@ -63,7 +63,7 @@ if (grid.length == 0) {
 }
 
 setInterval(() => {
-    fs.writeFileSync(saveFile, JSON.stringify(grid));
+    // fs.writeFileSync(saveFile, JSON.stringify(grid));
 }, 10000);
 
 function isTimeout(time) {
@@ -77,6 +77,7 @@ io.on('connection', function (socket) {
     socket.on('place', (_x, _y, _color, cb) => {
         if (isTimeout(timeouts[ip])) return cb(false);
         console.log(`${ip} placed at ${_x}, ${_y}`);
+        console.log(_color);
 
         cb(true);
         timeouts[ip] = Date.now();
