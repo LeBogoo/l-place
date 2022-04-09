@@ -1,6 +1,6 @@
 const socket = io();
 var settings;
-var color = 0;
+var selectedColor = 0;
 
 function setup() {
     createCanvas(0, 0);
@@ -15,9 +15,9 @@ function mouseClicked() {
     if (!cell) return;
     if (isTimeout(settings.timeoutTime)) return;
 
-    socket.emit('place', cell.x, cell.y, color, allowed => {
+    socket.emit('place', cell.x, cell.y, selectedColor, allowed => {
         if (!allowed) return;
-        setPixel(cell.x, cell.y, color);
+        setPixel(cell.x, cell.y, selectedColor);
         settings.timeoutTime = Date.now();
     });
 }
@@ -82,7 +82,7 @@ socket.on('start', (_settings) => {
         const colorButton = document.createElement('button');
         if (i == 0) colorButton.classList.add('active');
         colorButton.addEventListener('click', () => {
-            color = i;
+            selectedColor = i;
             document.querySelectorAll('.color-button').forEach(button => {
                 button.classList.remove('active');
             });
