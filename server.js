@@ -32,7 +32,7 @@ const colors = [
 ]
 
 server.listen(port, function () {
-    console.log('Server is running at port %d', port);
+    console.log(`${new Date().toString()} | Server running at port ${port}`);
 });
 
 app.use(express.static('./public'));
@@ -75,10 +75,11 @@ io.on('connection', function (socket) {
     var banList = fs.existsSync('banlist.json') ? JSON.parse(fs.readFileSync('banlist.json', 'utf8')) : [];
     if (banList.includes(ip)) {
         socket.disconnect();
-        console.log(`Banned Player (${ip}) was disconnected.`);
+        console.log(`${new Date().toString()} | Banned Player (${ip}) was disconnected.`);
     }
     else {
-        console.log(`${ip} connected!`)
+
+        console.log(`${new Date().toString()} | ${ip} connected!`)
     }
 
     if (!timeouts[ip]) timeouts[ip] = 0;
@@ -88,7 +89,7 @@ io.on('connection', function (socket) {
         if (banList.includes(ip)) socket.disconnect();
 
         if (isTimeout(timeouts[ip])) return cb(false);
-        console.log(`${ip} placed at ${_x}, ${_y}`);
+        console.log(`${new Date().toString()} | ${ip} placed at ${_x}, ${_y}`);
 
         cb(true);
         timeouts[ip] = Date.now();
@@ -107,8 +108,34 @@ io.on('connection', function (socket) {
     })
 
     socket.on('disconnect', () => {
-        console.log(`${ip} disconnected!`);
+        console.log(`${new Date().toString()} | ${ip} disconnected!`);
     });
+
+    socket.on('fastplace', (_x, _y, _color, cb) => {
+        if (ip != process.env.ADMIN_IP) return cb(false);
+        cb(true);
+        const x = parseInt(_x);
+        const y = parseInt(_y);
+        const color = parseInt(_color);
+        if (isNaN(color) || isNaN(x) || isNaN(y)) return;
+        if (x >= settings.size || x < 0) return;
+        if (y >= settings.size || y < 0) return;
+        if (color >= colors.length || color < 0) return;
+        grid[x][y] = _color;
+        io.emit('place', x, y, color);
+    })
+
+    socket.on('setTimeout', (_delay) => {
+        console.log(`${new Date().toString()} | Set delay to ${_delay}`);
+        if (ip != process.env.ADMIN_IP) return;
+        const delay = parseInt(_delay);
+
+        if (isNaN(delay)) return;
+        if (delay < 0) return;
+
+        settings.timeout = delay;
+        io.emit('setTimeout', delay);
+    })
 
     socket.emit('start', { ...settings, timeoutTime: timeouts[ip] })
 });

@@ -100,6 +100,8 @@ socket.on('start', (_settings) => {
 
 socket.on('place', setPixel);
 
+socket.on('setTimeout', (timeout) => { settings.timeout = timeout });
+
 function setPixel(x, y, color) {
     if (!settings) return;
     settings.grid[x][y] = color;
