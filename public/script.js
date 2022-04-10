@@ -1,16 +1,17 @@
 const socket = io();
 var settings;
 var selectedColor = 0;
-
+var canvas;
 function setup() {
-    createCanvas(0, 0);
+    canvas = createCanvas(0, 0);
+    canvas.canvas.addEventListener('click', click);
 }
 
 function isTimeout(time) {
     return Date.now() - settings.timeout < time;
 }
 
-function mouseClicked() {
+function click() {
     const cell = getMouseCell();
     if (!cell) return;
     if (isTimeout(settings.timeoutTime)) return;
