@@ -11,7 +11,7 @@ const cors = require('cors');
 
 const io = require('socket.io')(server);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 
 const colors = [
     '#820080',
